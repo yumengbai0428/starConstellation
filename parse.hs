@@ -30,7 +30,7 @@ getConstellation name constellations = Map.lookup name constellations
 sortByScore :: [(String, Int)] -> [(String, Int)]
 sortByScore = sortOn snd
 
-printOutput :: (String, Double) -> IO()
+printOutput :: (String, Int) -> IO()
 printOutput (name, score) = putStrLn $ name ++ " " ++ show score
 
 mapToTupleList :: Map String Constellation -> [(String, [Minutia])]
