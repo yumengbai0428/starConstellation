@@ -89,7 +89,7 @@ main = do
     case constellations of
       Just templates -> do
         let templateFingerprints = mapToTupleList templates
-            refVicinity = constellations >>= getMinutia "Triangulum" 
+            refVicinity = getMinutia "Triangulum" templates
             refVicinities = createVicinities refVicinity k
             candidateBinaryVector = createBinaryVector candidateFingerprint refVicinities k sigX sigTheta t
             binaryVectors = parMap rpar (\(n, stars) -> (n , createBinaryVector stars refVicinities k sigX sigTheta t)) templateFingerprints
