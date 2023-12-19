@@ -92,8 +92,8 @@ main = do
             refVicinity = getMinutia "Triangulum" templates
             refVicinities = createVicinities refVicinity k
             candidateBinaryVector = createBinaryVector candidateFingerprint refVicinities k sigX sigTheta t
-            binaryVectors = parMap rpar (\(n, stars) -> (n , createBinaryVector stars refVicinities k sigX sigTheta t)) templateFingerprints
-            hammingDistances = parMap rpar (\(n, templateVector) -> (n, hammingDistance templateVector candidateBinaryVector)) binaryVectors
+            binaryVectors = parMap rdeepseq (\(n, stars) -> (n , createBinaryVector stars refVicinities k sigX sigTheta t)) templateFingerprints
+            hammingDistances = parMap rdeepseq (\(n, templateVector) -> (n, hammingDistance templateVector candidateBinaryVector)) binaryVectors
             scoreMap = sortByScore hammingDistances
         mapM_ printOutput $ sortByScore scoreMap
       Nothing -> putStrLn "Error parsing the file"
