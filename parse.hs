@@ -79,7 +79,7 @@ main = do
     let sigX = 0.1
         sigTheta = 0.05
         t = 1.531
-        (k, templateFingerprint) <- readInput
+    (k, templateFingerprint) <- readInput
     constellations <- getTemplates "./database generation/constellation data/cartesian.json"
     case constellations of
       Just templates -> do
