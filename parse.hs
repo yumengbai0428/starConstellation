@@ -24,15 +24,8 @@ getTemplates filePath = do
     let result = decode fileContent :: Maybe (Map String Constellation)
     return result
 
-getConstellation :: String -> Map.Map String Constellation -> [Minutia]
-getConstellation name constellations = do
-  let temp = Map.lookup name constellations
-  case temp of
-    Just cons -> constellationToMList cons
-    Nothing -> []
-
-constellationToMList :: Constellation -> [Minutia]
-constellationToMList Constellation stars = Prelude.map snd $ toList stars
+getConstellation :: String -> Map.Map String Constellation -> Maybe Constellation
+getConstellation name constellations = Map.lookup name constellations
 
 sortByScore :: [(String, Int)] -> [(String, Int)]
 sortByScore = sortOn snd
