@@ -11,8 +11,7 @@ import Text.Read (readMaybe)
 import Control.Parallel.Strategies
 import Data.List (sortOn)
 
-type Star = (Double, Double, Double)
-newtype Constellation = Constellation (Map String Star)
+newtype Constellation = Constellation (Map String Minutia)
     deriving (Generic, Show)
 
 instance FromJSON Constellation
@@ -24,8 +23,15 @@ getTemplates filePath = do
     let result = decode fileContent :: Maybe (Map String Constellation)
     return result
 
-getConstellation :: String -> Map.Map String Constellation -> Maybe Constellation
-getConstellation name constellations = Map.lookup name constellations
+getMinutia :: String -> Map.Map String Constellation -> [Minutia]
+getMinutia name constellations = do
+  cons <- Map.lookup name constellations
+  case cons of
+    Just c -> Prelude.map snd $ toList c
+    Nothing -> []
+
+-- getConstellation :: String -> Map.Map String Constellation -> Maybe Constellation
+-- getConstellation name constellations = Map.lookup name constellations
 
 sortByScore :: [(String, Int)] -> [(String, Int)]
 sortByScore = sortOn snd
@@ -84,7 +90,7 @@ main = do
     case constellations of
       Just templates -> do
         let templateFingerprints = mapToTupleList templates
-            refVicinity = constellations >>= getConstellation "Triangulum"
+            refVicinity = getMinutia "Triangulum" constellations
             refVicinities = createVicinities refVicinity k
             candidateBinaryVector = createBinaryVector candidateFingerprint refVicinities k sigX sigTheta t
             binaryVectors = parMap rpar (\(n, stars) -> (n , createBinaryVector stars refVicinities k sigX sigTheta t)) templateFingerprints
