@@ -1,6 +1,6 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE OverloadedStrings #-}
-import BD_algorithm_new
+import BD_algorithm
 import GHC.Generics
 import Data.Aeson
 import qualified Data.ByteString.Lazy as B
