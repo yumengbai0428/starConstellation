@@ -28,7 +28,7 @@ getConstellation :: String -> Map.Map String Constellation -> [Minutia]
 getConstellation name constellations = do
   let temp = Map.lookup name constellations
   case temp of
-    Maybe cons -> constellationToMList cons
+    Just cons -> constellationToMList cons
     Nothing -> []
 
 constellationToMList :: Constellation -> [Minutia]
