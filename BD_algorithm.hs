@@ -1,3 +1,5 @@
+module BD where
+
 import Data.List (sortBy, transpose)
 import Data.Array.Base (listArray)
 import Munkres  -- import Hungarian Algorithm

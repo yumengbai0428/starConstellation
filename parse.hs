@@ -1,5 +1,6 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE OverloadedStrings #-}
+import BD
 import GHC.Generics
 import Data.Aeson
 import qualified Data.ByteString.Lazy as B
@@ -8,7 +9,6 @@ import Text.Read (readMaybe)
 import Control.Parallel.Strategies
 import Data.List (sortOn)
 
-type Minutia = (Double, Double, Double) -- (x, y, theta)
 type Star = (Double, Double, Double)
 newtype Constellation = Constellation (Map String Star)
     deriving (Generic, Show)
@@ -23,12 +23,12 @@ getCandidates filePath = do
     return result
 
 sortByScore :: [(String, Double)] -> [(String, Double)]
-sortByScore = reverse . sortOn snd
+sortByScore = sortOn snd
 
 printOutput :: (String, Double) -> IO()
 printOutput (name, score) = putStrLn $ name ++ " " ++ show score
 
-mapToTupleList :: Map String Constellation -> [(String, [Star])]
+mapToTupleList :: Map String Constellation -> [(String, [Minutia])]
 mapToTupleList = toList . fmap (\(Constellation stars) -> map snd $ toList stars)
 
 readInput :: IO (Int, [Minutia])
@@ -69,18 +69,19 @@ readMaybeTuple s = case reads s of
     _               -> Nothing
 
 
-{-
+
 main :: IO ()
 main = do
-    (k, minutiae) <- readInput
     let sigX = 0.1
-      sigTheta = 0.05
-      k = 4
+        sigTheta = 0.05
+        (k, templateFingerprint) = readInput
     constellations <- getCandidates "./database generation/constellation data/cartesian.json"
     case constellations of
       Just candidates -> do
-        let allCandidates = mapToTupleList candidates
-            scoreMap = parMap rpar (\(Constellation n s) -> (n, similarityScore s templateFingerprint sigX sigTheta k)) allCandidates
+        let candidateFingerprints = mapToTupleList candidates
+            candidateBinaryVector = createBinaryVector candidateFingerprint refVicinities k sigX sigTheta t
+            binaryVectors = parmap rpar (\(n, stars) -> (n , createBinaryVector stars refVicinities k sigX sigTheta t)) candidateFingerprints
+            hammingDistances = parmap rpar (\(n, templateVector) -> (n, hammingDistance templateVector candidateBinaryVector)) binaryVectors
+            scoreMap = sortByScore hammingDistances
         mapM_ printOutput $ sortByScore scoreMap
       Nothing -> putStrLn "Error parsing the file"
--}
