@@ -1,14 +1,16 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE OverloadedStrings #-}
+import BD_algorithm_new
 import GHC.Generics
 import Data.Aeson
 import qualified Data.ByteString.Lazy as B
-import Data.Map (Map, toList)
+import Data.Map as Map
+
+import Data.Maybe (fromMaybe)
 import Text.Read (readMaybe)
 import Control.Parallel.Strategies
 import Data.List (sortOn)
 
-type Minutia = (Double, Double, Double) -- (x, y, theta)
 type Star = (Double, Double, Double)
 newtype Constellation = Constellation (Map String Star)
     deriving (Generic, Show)
@@ -16,20 +18,23 @@ newtype Constellation = Constellation (Map String Star)
 instance FromJSON Constellation
 instance ToJSON Constellation
 
-getCandidates :: FilePath -> IO (Maybe (Map String Constellation))
-getCandidates filePath = do
+getTemplates :: FilePath -> IO (Maybe (Map String Constellation))
+getTemplates filePath = do
     fileContent <- B.readFile filePath
     let result = decode fileContent :: Maybe (Map String Constellation)
     return result
 
+getConstellation :: String -> Map.Map String Constellation -> Maybe Constellation
+getConstellation name constellations = Map.lookup name constellations
+
 sortByScore :: [(String, Double)] -> [(String, Double)]
-sortByScore = reverse . sortOn snd
+sortByScore = sortOn snd
 
 printOutput :: (String, Double) -> IO()
 printOutput (name, score) = putStrLn $ name ++ " " ++ show score
 
-mapToTupleList :: Map String Constellation -> [(String, [Star])]
-mapToTupleList = toList . fmap (\(Constellation stars) -> map snd $ toList stars)
+mapToTupleList :: Map String Constellation -> [(String, [Minutia])]
+mapToTupleList = toList . fmap (\(Constellation stars) -> Prelude.map snd $ toList stars)
 
 readInput :: IO (Int, [Minutia])
 readInput = do
@@ -69,18 +74,21 @@ readMaybeTuple s = case reads s of
     _               -> Nothing
 
 
-{-
 main :: IO ()
 main = do
-    (k, minutiae) <- readInput
     let sigX = 0.1
-      sigTheta = 0.05
-      k = 4
-    constellations <- getCandidates "./database generation/constellation data/cartesian.json"
+        sigTheta = 0.05
+        t = 1.531
+        (k, templateFingerprint) = readInput
+    constellations <- getTemplates "./database generation/constellation data/cartesian.json"
     case constellations of
-      Just candidates -> do
-        let allCandidates = mapToTupleList candidates
-            scoreMap = parMap rpar (\(Constellation n s) -> (n, similarityScore s templateFingerprint sigX sigTheta k)) allCandidates
+      Just templates -> do
+        let templateFingerprints = mapToTupleList templates
+            refVicinity = constellations >>= getConstellation "Triangulum"
+            refVicinities = createVicinities refVicinity k
+            candidateBinaryVector = createBinaryVector candidateFingerprint refVicinities k sigX sigTheta t
+            binaryVectors = parMap rpar (\(n, stars) -> (n , createBinaryVector stars refVicinities k sigX sigTheta t)) templateFingerprints
+            hammingDistances = parMap rpar (\(n, templateVector) -> (n, hammingDistance templateVector candidateBinaryVector)) binaryVectors
+            scoreMap = sortByScore hammingDistances
         mapM_ printOutput $ sortByScore scoreMap
       Nothing -> putStrLn "Error parsing the file"
--}
