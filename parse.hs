@@ -27,7 +27,7 @@ getTemplates filePath = do
 getConstellation :: String -> Map.Map String Constellation -> Maybe Constellation
 getConstellation name constellations = Map.lookup name constellations
 
-sortByScore :: [(String, Double)] -> [(String, Double)]
+sortByScore :: [(String, Int)] -> [(String, Int)]
 sortByScore = sortOn snd
 
 printOutput :: (String, Double) -> IO()
