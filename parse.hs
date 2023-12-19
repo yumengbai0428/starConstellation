@@ -25,9 +25,8 @@ getTemplates filePath = do
 
 getMinutia :: String -> Map.Map String Constellation -> [Minutia]
 getMinutia name constellations = do
-  conste <- Map.lookup name constellations
-  case conste of
-    Just c -> Prelude.map snd $ toList c
+  case Map.lookup name constellations of
+    Just (Constellation c) -> Prelude.map snd $ toList c
     Nothing -> []
 
 -- getConstellation :: String -> Map.Map String Constellation -> Maybe Constellation
