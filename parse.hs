@@ -75,12 +75,12 @@ main = do
     let sigX = 0.1
         sigTheta = 0.05
         (k, templateFingerprint) = readInput
-    constellations <- getCandidates "./database generation/constellation data/cartesian.json"
+    constellations <- getTemplates "./database generation/constellation data/cartesian.json"
     case constellations of
-      Just candidates -> do
-        let candidateFingerprints = mapToTupleList candidates
+      Just templates -> do
+        let templateFingerprints = mapToTupleList templates
             candidateBinaryVector = createBinaryVector candidateFingerprint refVicinities k sigX sigTheta t
-            binaryVectors = parmap rpar (\(n, stars) -> (n , createBinaryVector stars refVicinities k sigX sigTheta t)) candidateFingerprints
+            binaryVectors = parmap rpar (\(n, stars) -> (n , createBinaryVector stars refVicinities k sigX sigTheta t)) templateFingerprints
             hammingDistances = parmap rpar (\(n, templateVector) -> (n, hammingDistance templateVector candidateBinaryVector)) binaryVectors
             scoreMap = sortByScore hammingDistances
         mapM_ printOutput $ sortByScore scoreMap
