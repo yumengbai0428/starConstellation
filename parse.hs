@@ -41,7 +41,20 @@ printOutput (name, score) = putStrLn $ name ++ " " ++ show score
 mapToTupleList :: Map String Constellation -> [(String, [Minutia])]
 mapToTupleList = toList . fmap (\(Constellation stars) -> Prelude.map snd $ toList stars)
 
-readInput :: IO (Int, [Minutia])
+readT :: IO Int
+readT = do
+    putStrLn "Enter an integer t:"
+    inputT <- getLine
+    let maybeT = readMaybe inputT :: Maybe Int
+    case maybeT of
+        Just t -> do
+            putStrLn $ "You entered t = " ++ show t
+            return t
+        Nothing -> do
+            putStrLn "Invalid input for t. Please enter an integer."
+            readT
+
+readInput :: IO (Int, Int, [Minutia])
 readInput = do
     putStrLn "Enter an integer k:"
     inputK <- getLine
@@ -49,8 +62,9 @@ readInput = do
     case maybeK of
         Just k -> do
             putStrLn $ "You entered k = " ++ show k
+            t <- readT
             minutiae <- processMinutiae []
-            return (k, minutiae)
+            return (k, t, minutiae)
         Nothing -> do
             putStrLn "Invalid input for k. Please enter an integer."
             readInput
@@ -83,8 +97,7 @@ main :: IO ()
 main = do
     let sigX = 0.1
         sigTheta = 0.05
-        t = 1.531
-    (k, candidateFingerprint) <- readInput
+    (k, t, candidateFingerprint) <- readInput
     constellations <- getTemplates "./database generation/constellation data/cartesian.json"
     case constellations of
       Just templates -> do
