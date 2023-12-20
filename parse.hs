@@ -82,8 +82,7 @@ readMaybeTuple s = case reads s of
 main :: IO ()
 main = do
     let sigX = 0.1
-        sigTheta = 0.05
-        t = 1.531
+        sigTheta = 0.1
     (k, candidateFingerprint) <- readInput
     constellations <- getTemplates "./database generation/constellation data/cartesian.json"
     case constellations of
@@ -91,6 +90,8 @@ main = do
         let templateFingerprints = mapToTupleList templates
             refVicinity = getMinutia "Triangulum" templates
             refVicinities = createVicinities refVicinity k
+            candidateScores= [vicinitySimilarityScore candidate template sigX sigTheta | candidate <- (createVicinities candidateFingerprint k), template <- refVicinities] 
+            t = (sum candidateScores) / (fromIntegral (length candidateScores))
             candidateBinaryVector = createBinaryVector candidateFingerprint refVicinities k sigX sigTheta t
             binaryVectors = parMap rdeepseq (\(n, stars) -> (n , createBinaryVector stars refVicinities k sigX sigTheta t)) templateFingerprints
             hammingDistances = parMap rdeepseq (\(n, templateVector) -> (n, hammingDistance templateVector candidateBinaryVector)) binaryVectors
