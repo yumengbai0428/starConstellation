@@ -1,4 +1,5 @@
-
+-- Source Code fetched and modified from Balazs Komuves
+-- <https://hackage.haskell.org/package/Munkres>
 -- | The Munkres version of the Hungarian Method for weighted minimal 
 -- bipartite matching. 
 -- The implementation is based on Robert A. Pilgrim's notes, 
