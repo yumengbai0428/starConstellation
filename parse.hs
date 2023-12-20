@@ -41,17 +41,17 @@ printOutput (name, score) = putStrLn $ name ++ " " ++ show score
 mapToTupleList :: Map String Constellation -> [(String, [Minutia])]
 mapToTupleList = toList . fmap (\(Constellation stars) -> Prelude.map snd $ toList stars)
 
-readT :: IO Int
+readT :: IO Double
 readT = do
-    putStrLn "Enter an integer t:"
+    putStrLn "Enter a double t:"
     inputT <- getLine
-    let maybeT = readMaybe inputT :: Maybe Int
+    let maybeT = readMaybe inputT :: Maybe Double
     case maybeT of
         Just t -> do
             putStrLn $ "You entered t = " ++ show t
             return t
         Nothing -> do
-            putStrLn "Invalid input for t. Please enter an integer."
+            putStrLn "Invalid input for t. Please enter a double."
             readT
 
 readInput :: IO (Int, Int, [Minutia])
