@@ -87,7 +87,8 @@ main = do
     constellations <- getTemplates "./database generation/constellation data/cartesian.json"
     case constellations of
       Just templates -> do
-        let templateFingerprints = mapToTupleList templates
+        let removed = Map.delete "Triangulum" templates
+            templateFingerprints = mapToTupleList removed
             refVicinity = getMinutia "Triangulum" templates
             refVicinities = createVicinities refVicinity k
             candTempList = [(candidate, template) | candidate <- createVicinities candidateFingerprint k, template <- refVicinities]
