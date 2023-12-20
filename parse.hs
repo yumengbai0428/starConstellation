@@ -54,7 +54,7 @@ readT = do
             putStrLn "Invalid input for t. Please enter a double."
             readT
 
-readInput :: IO (Int, Int, [Minutia])
+readInput :: IO (Int, Double, [Minutia])
 readInput = do
     putStrLn "Enter an integer k:"
     inputK <- getLine
